@@ -1,0 +1,6 @@
+name "plut"
+version "0.1"
+description "Something like curses. The console helper library"
+authors "ttldtor <ttldtor@gmail.com>"
+targetType "library"
+homepage "https://github.com/ttldtor/plut/wiki"

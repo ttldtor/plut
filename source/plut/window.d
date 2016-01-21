@@ -7,7 +7,7 @@ import plut.handler;
 import plut.keyboardevent;
 import plut.mouseevent;
 import plut.sizeevent;
-import plut.color;
+import plut.colorindex;
 
 class Window {
     char[][] buffer;
@@ -16,8 +16,8 @@ class Window {
     Size size;
 
     Pos innerPos;
-    Color foregroundColor;
-    Color backgroundColor;
+    ColorIndex foregroundColor;
+    ColorIndex backgroundColor;
 
     SizePolicy policy;
     

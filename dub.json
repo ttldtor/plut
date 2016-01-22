@@ -1,0 +1,10 @@
+{
+    "name": "plut",
+    "version": "0.1.0",
+    "description": "Something like curses. The console helper library",
+    "authors": ["ttldtor <ttldtor@gmail.com>"],
+    "license" : "Boost Software License - Version 1.0",
+    "targetType": "library",
+    "dependencies": { "az": "~>0.1.0" },
+    "homepage": "https://github.com/ttldtor/plut/wiki"
+}

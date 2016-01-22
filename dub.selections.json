@@ -1,4 +1,6 @@
 {
-	"versions": {},
+	"versions": {
+		"az": "0.1.0"
+	},
 	"fileVersion": 1
 }

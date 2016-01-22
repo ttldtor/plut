@@ -10,20 +10,35 @@ import plut.sizeevent;
 import plut.colorindex;
 
 class Window {
-    char[][] buffer;
+    char[][] buffer_;
     
-    Pos pos;
-    Size size;
+    Pos pos_;
+    int zOrder_;
+    Size size_;
 
-    Pos innerPos;
-    ColorIndex foregroundColor;
-    ColorIndex backgroundColor;
+    Pos innerPos_;
+    ColorIndex foregroundColor_;
+    ColorIndex backgroundColor_;
 
-    SizePolicy policy;
+    SizePolicy policy_;
     
-    Window parent;
+    Window parent_;
 
     auto onKeyboardEvent = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
     auto onMouseEvent = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
     auto onSizeEvent = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+
+    public {
+        @property {
+            ref Pos pos(Pos newPos) {
+                pos_ = newPos;
+                
+                return pos_;
+            }
+
+            ref Pos pos() {
+                return pos_;
+            }
+        }
+    }
 };

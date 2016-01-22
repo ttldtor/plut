@@ -8,9 +8,10 @@ import plut.keyboardevent;
 import plut.mouseevent;
 import plut.sizeevent;
 import plut.colorindex;
+import plut.chartype;
 
 class Window {
-    char[][] buffer_;
+    CharType[][] buffer_;
     
     Pos pos_;
     int zOrder_;

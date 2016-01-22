@@ -31,14 +31,20 @@ class Window {
 
     public {
         @property {
-            ref Pos pos(Pos newPos) {
-                pos_ = newPos;
-                
+            Pos pos(Pos newPos) {
+                return pos_ = newPos;
+            }
+
+            Pos pos() {
                 return pos_;
             }
 
-            ref Pos pos() {
-                return pos_;
+            int zOrder(int newZOrder) {
+                return zOrder_ = newZOrder;
+            }
+
+            int zOrder() {
+                return zOrder_;
             }
         }
     }

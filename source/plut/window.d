@@ -18,13 +18,10 @@ class Window {
         int zOrder_;
         Size size_;
 
-        Pos innerPos_;
-        ColorIndex foregroundColor_;
-        ColorIndex backgroundColor_;
-
-        SizePolicy policy_;
+        SizePolicy sizePolicy_;
 
         Window parent_;
+        Window[] children_;
 
         auto keyboardEventsHandler = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
         auto mouseEventsHandler = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
@@ -55,6 +52,14 @@ class Window {
 
             Size size() {
                 return size_;
+            }
+
+            SizePolicy sizePolicy(SizePolicy newSizePolicy) {
+                return sizePolicy_ = newSizePolicy;
+            }
+
+            SizePolicy sizePolicy() {
+                return sizePolicy_;
             }
         }
     }

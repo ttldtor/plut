@@ -1,5 +1,7 @@
 module plut.window;
 
+import az.core.az;
+
 import plut.size;
 import plut.pos;
 import plut.sizepolicy;
@@ -10,7 +12,7 @@ import plut.sizeevent;
 import plut.colorindex;
 import plut.chartype;
 
-class Window {
+class Window: Az {
     private {
         CharType[][] buffer_;
 
@@ -20,15 +22,16 @@ class Window {
 
         SizePolicy sizePolicy_;
 
-        Window parent_;
-        Window[] children_;
-
         auto keyboardEventsHandler = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
         auto mouseEventsHandler = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
         auto sizeEventsHandler = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
     }
 
     public {
+        this(Az parent = null) {
+            super(parent);
+        }
+
         @property {
             Pos pos(Pos newPos) {
                 return pos_ = newPos;

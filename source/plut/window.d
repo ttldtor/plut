@@ -11,23 +11,25 @@ import plut.colorindex;
 import plut.chartype;
 
 class Window {
-    CharType[][] buffer_;
-    
-    Pos pos_;
-    int zOrder_;
-    Size size_;
+    private {
+        CharType[][] buffer_;
 
-    Pos innerPos_;
-    ColorIndex foregroundColor_;
-    ColorIndex backgroundColor_;
+        Pos pos_;
+        int zOrder_;
+        Size size_;
 
-    SizePolicy policy_;
-    
-    Window parent_;
+        Pos innerPos_;
+        ColorIndex foregroundColor_;
+        ColorIndex backgroundColor_;
 
-    auto onKeyboardEvent = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
-    auto onMouseEvent = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
-    auto onSizeEvent = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+        SizePolicy policy_;
+
+        Window parent_;
+
+        auto keyboardEventsHandler = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
+        auto mouseEventsHandler = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
+        auto sizeEventsHandler = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+    }
 
     public {
         @property {
@@ -45,6 +47,14 @@ class Window {
 
             int zOrder() {
                 return zOrder_;
+            }
+
+            Size size(Size newSize) {
+                return size_ = newSize;
+            }
+
+            Size size() {
+                return size_;
             }
         }
     }

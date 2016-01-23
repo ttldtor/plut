@@ -1,3 +1,7 @@
 ﻿module plut.keyboardevent;
 
-struct KeyboardEvent {};
+import az.core.az;
+import plut.keyboardstate;
+import plut.commonevent;
+
+alias KeyboardEvent = CommonEvent!(Az, KeyboardState);

@@ -22,9 +22,9 @@ class Window: Az {
 
         SizePolicy sizePolicy_;
 
-        auto keyboardEventsHandler = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
-        auto mouseEventsHandler = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
-        auto sizeEventsHandler = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+        auto keyboardEventsHandler_ = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
+        auto mouseEventsHandler_ = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
+        auto sizeEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
     }
 
     public {
@@ -63,6 +63,18 @@ class Window: Az {
 
             SizePolicy sizePolicy() {
                 return sizePolicy_;
+            }
+
+            auto keyboardEventsHandler() {
+                return keyboardEventsHandler_;
+            }
+
+            auto mouseEventsHandler() {
+                return mouseEventsHandler_;
+            }
+
+            auto sizeEventsHandler() {
+                return sizeEventsHandler_;
             }
         }
     }

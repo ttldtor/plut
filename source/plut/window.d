@@ -6,13 +6,18 @@ import plut.size;
 import plut.pos;
 import plut.sizepolicy;
 import plut.handler;
+import plut.commonevent;
 import plut.keyboardevent;
 import plut.mouseevent;
 import plut.sizeevent;
+import plut.posevent;
+import plut.sizepolicyevent;
 import plut.colorindex;
 import plut.chartype;
 
 class Window: Az {
+    alias ZOrderChangeEvent = ValueChangeEvent!(typeof(zOrder_));
+
     private {
         CharType[][] buffer_;
 
@@ -24,7 +29,10 @@ class Window: Az {
 
         auto keyboardEventsHandler_ = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
         auto mouseEventsHandler_ = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
+        auto posEventsHandler_ = new SharedHandler!(Window /+ sender +/, PosEvent /+ event +/);
+        auto zOrderChangesHandler_ = new SharedHandler!(Window /+ sender +/, ZOrderChangeEvent /+ event +/);
         auto sizeEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+        auto sizePolicyEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizePolicyEvent /+ event +/);
     }
 
     public {
@@ -34,6 +42,8 @@ class Window: Az {
 
         @property {
             Pos pos(Pos newPos) {
+                posEventsHandler_(this, PosEvent(this, pos_, newPos));
+
                 return pos_ = newPos;
             }
 
@@ -42,6 +52,8 @@ class Window: Az {
             }
 
             int zOrder(int newZOrder) {
+                zOrderChangesHandler_(this, ZOrderChangeEvent(this, zOrder_, newZOrder));
+
                 return zOrder_ = newZOrder;
             }
 
@@ -50,6 +62,8 @@ class Window: Az {
             }
 
             Size size(Size newSize) {
+                sizeEventsHandler_(this, SizeEvent(this, size_, newSize));
+
                 return size_ = newSize;
             }
 
@@ -58,6 +72,8 @@ class Window: Az {
             }
 
             SizePolicy sizePolicy(SizePolicy newSizePolicy) {
+                sizePolicyEventsHandler_(this, SizePolicyEvent(this, sizePolicy_, newSizePolicy));
+
                 return sizePolicy_ = newSizePolicy;
             }
 
@@ -75,6 +91,18 @@ class Window: Az {
 
             auto sizeEventsHandler() {
                 return sizeEventsHandler_;
+            }
+
+            auto posEventsHandler() {
+                return posEventsHandler_;
+            }
+
+            auto zOrderChangesHandler() {
+                return zOrderChangesHandler_;
+            }
+
+            auto sizePolicyEventsHandler() {
+                return sizePolicyEventsHandler_;
             }
         }
     }

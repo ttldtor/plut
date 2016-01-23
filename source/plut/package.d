@@ -5,6 +5,7 @@ public import plut.mouseevent;
 public import plut.keyboardevent;
 public import plut.sizeevent;
 public import plut.posevent;
+public import plut.sizepolicyevent;
 
 public import plut.mousestate;
 public import plut.keyboardstate;

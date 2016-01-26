@@ -1,11 +1,11 @@
 module plut.window;
 
 import az.core.az;
+import az.core.handler;
 
 import plut.size;
 import plut.pos;
 import plut.sizepolicy;
-import plut.handler;
 import plut.commonevent;
 import plut.keyboardevent;
 import plut.mouseevent;
@@ -18,92 +18,92 @@ import plut.chartype;
 class Window: Az {
     alias ZOrderChangeEvent = ValueChangeEvent!(typeof(zOrder_));
 
-    private {
-        CharType[][] buffer_;
+private:
 
-        Pos pos_;
-        int zOrder_;
-        Size size_;
+    CharType[][] buffer_;
 
-        SizePolicy sizePolicy_;
+    Pos pos_;
+    int zOrder_;
+    Size size_;
 
-        auto keyboardEventsHandler_ = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
-        auto mouseEventsHandler_ = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
-        auto posEventsHandler_ = new SharedHandler!(Window /+ sender +/, PosEvent /+ event +/);
-        auto zOrderChangesHandler_ = new SharedHandler!(Window /+ sender +/, ZOrderChangeEvent /+ event +/);
-        auto sizeEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
-        auto sizePolicyEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizePolicyEvent /+ event +/);
+    SizePolicy sizePolicy_;
+
+    auto keyboardEventsHandler_ = new SharedHandler!(Window /+ sender +/, KeyboardEvent /+ event +/);
+    auto mouseEventsHandler_ = new SharedHandler!(Window /+ sender +/, MouseEvent /+ event +/);
+    auto posEventsHandler_ = new SharedHandler!(Window /+ sender +/, PosEvent /+ event +/);
+    auto zOrderChangesHandler_ = new SharedHandler!(Window /+ sender +/, ZOrderChangeEvent /+ event +/);
+    auto sizeEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizeEvent /+ event +/);
+    auto sizePolicyEventsHandler_ = new SharedHandler!(Window /+ sender +/, SizePolicyEvent /+ event +/);
+
+public:
+
+    this(Az parent = null) {
+        super(parent);
     }
 
-    public {
-        this(Az parent = null) {
-            super(parent);
+    @property {
+        Pos pos(Pos newPos) {
+            posEventsHandler_(this, PosEvent(this, pos_, newPos));
+
+            return pos_ = newPos;
         }
 
-        @property {
-            Pos pos(Pos newPos) {
-                posEventsHandler_(this, PosEvent(this, pos_, newPos));
+        Pos pos() {
+            return pos_;
+        }
 
-                return pos_ = newPos;
-            }
+        int zOrder(int newZOrder) {
+            zOrderChangesHandler_(this, ZOrderChangeEvent(this, zOrder_, newZOrder));
 
-            Pos pos() {
-                return pos_;
-            }
+            return zOrder_ = newZOrder;
+        }
 
-            int zOrder(int newZOrder) {
-                zOrderChangesHandler_(this, ZOrderChangeEvent(this, zOrder_, newZOrder));
+        int zOrder() {
+            return zOrder_;
+        }
 
-                return zOrder_ = newZOrder;
-            }
+        Size size(Size newSize) {
+            sizeEventsHandler_(this, SizeEvent(this, size_, newSize));
 
-            int zOrder() {
-                return zOrder_;
-            }
+            return size_ = newSize;
+        }
 
-            Size size(Size newSize) {
-                sizeEventsHandler_(this, SizeEvent(this, size_, newSize));
+        Size size() {
+            return size_;
+        }
 
-                return size_ = newSize;
-            }
+        SizePolicy sizePolicy(SizePolicy newSizePolicy) {
+            sizePolicyEventsHandler_(this, SizePolicyEvent(this, sizePolicy_, newSizePolicy));
 
-            Size size() {
-                return size_;
-            }
+            return sizePolicy_ = newSizePolicy;
+        }
 
-            SizePolicy sizePolicy(SizePolicy newSizePolicy) {
-                sizePolicyEventsHandler_(this, SizePolicyEvent(this, sizePolicy_, newSizePolicy));
+        SizePolicy sizePolicy() {
+            return sizePolicy_;
+        }
 
-                return sizePolicy_ = newSizePolicy;
-            }
+        auto keyboardEventsHandler() {
+            return keyboardEventsHandler_;
+        }
 
-            SizePolicy sizePolicy() {
-                return sizePolicy_;
-            }
+        auto mouseEventsHandler() {
+            return mouseEventsHandler_;
+        }
 
-            auto keyboardEventsHandler() {
-                return keyboardEventsHandler_;
-            }
+        auto sizeEventsHandler() {
+            return sizeEventsHandler_;
+        }
 
-            auto mouseEventsHandler() {
-                return mouseEventsHandler_;
-            }
+        auto posEventsHandler() {
+            return posEventsHandler_;
+        }
 
-            auto sizeEventsHandler() {
-                return sizeEventsHandler_;
-            }
+        auto zOrderChangesHandler() {
+            return zOrderChangesHandler_;
+        }
 
-            auto posEventsHandler() {
-                return posEventsHandler_;
-            }
-
-            auto zOrderChangesHandler() {
-                return zOrderChangesHandler_;
-            }
-
-            auto sizePolicyEventsHandler() {
-                return sizePolicyEventsHandler_;
-            }
+        auto sizePolicyEventsHandler() {
+            return sizePolicyEventsHandler_;
         }
     }
 };

@@ -15,6 +15,5 @@ public import plut.chartype;
 public import plut.size;
 public import plut.sizepolicy;
 public import plut.pos;
-public import plut.handler;
 public import plut.beep;
 public import plut.window;

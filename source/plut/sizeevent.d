@@ -1,6 +1,7 @@
 ﻿module plut.sizeevent;
 
 import az.core.az;
+
 import plut.commonevent;
 import plut.size;
 

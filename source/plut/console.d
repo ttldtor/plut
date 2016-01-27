@@ -5,8 +5,11 @@ import az.core.handler;
 
 import plut.colorindex;
 import plut.sizeevent;
+import plut.size;
 import plut.mouseevent;
+import plut.mousestate;
 import plut.keyboardevent;
+import plut.keyboardstate;
 import plut.chartype;
 import plut.pos;
 
@@ -58,7 +61,7 @@ version(Windows) {
             } 
         }
         
-        void run() {
+        void run(K, M, S) (K keyboardEventsHandler, M mouseEventsHandler, S sizeEventsHandler) {
             
             INPUT_RECORD[inputBufferSize] inputBuffer;
             DWORD numberOfEvents = 0;
@@ -75,9 +78,18 @@ version(Windows) {
                         INPUT_RECORD record = inputBuffer[i];
                         
                         switch (record.EventType) {
-                            case KEY_EVENT: break;
-                            case MOUSE_EVENT: break;
-                            case WINDOW_BUFFER_SIZE_EVENT: break;
+                            case KEY_EVENT:
+                                keyboardEventsHandler(null, KeyboardEvent(null, KeyboardState()));
+                                break;
+                                
+                            case MOUSE_EVENT:
+                                mouseEventsHandler(null, MouseEvent(null, MouseState()));
+                                break;
+                                
+                            case WINDOW_BUFFER_SIZE_EVENT:
+                                sizeEventsHandler(null, SizeEvent(null, Size()));
+                                break;
+                                
                             case FOCUS_EVENT: break;
                             case MENU_EVENT: break;
                             default: break;
@@ -131,5 +143,9 @@ public:
     
     void drawBuffer(Pos pos, CharType[][] buffer) {
         
+    }
+    
+    void run() {
+        impl_.run(keyboardEventsHandler_, mouseEventsHandler_, sizeEventsHandler_);
     }
 };

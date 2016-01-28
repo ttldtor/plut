@@ -105,5 +105,9 @@ public:
         auto sizePolicyEventsHandler() {
             return sizePolicyEventsHandler_;
         }
+        
+        auto buffer() {
+            return buffer_;
+        }
     }
 };

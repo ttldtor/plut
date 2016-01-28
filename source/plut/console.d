@@ -12,6 +12,9 @@ import plut.keyboardevent;
 import plut.keyboardstate;
 import plut.chartype;
 import plut.pos;
+import plut.window;
+
+import std.conv;
 
 class PlutConsoleException: Exception {
     public @safe pure nothrow this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {
@@ -24,7 +27,7 @@ version(Windows) {
     import core.thread;
     
     class ConsoleImpl {
-        private:
+    private:
         
         enum inputBufferSize = 512;
         
@@ -32,9 +35,11 @@ version(Windows) {
         HANDLE stdIn_;
         DWORD oldConsoleMode_;
         
-        public:
+        Size currentSize_;
         
-        this(Console parent) {
+    public:
+        
+        this() {
             stdOut_ = GetStdHandle(STD_OUTPUT_HANDLE);
             stdIn_ = GetStdHandle(STD_INPUT_HANDLE);
             
@@ -61,7 +66,7 @@ version(Windows) {
             } 
         }
         
-        void run(K, M, S) (K keyboardEventsHandler, M mouseEventsHandler, S sizeEventsHandler) {
+        void run(Console console) {
             
             INPUT_RECORD[inputBufferSize] inputBuffer;
             DWORD numberOfEvents = 0;
@@ -79,15 +84,19 @@ version(Windows) {
                         
                         switch (record.EventType) {
                             case KEY_EVENT:
-                                keyboardEventsHandler(null, KeyboardEvent(null, KeyboardState()));
+                                console.keyboardEventsHandler()(console, KeyboardEvent(console, KeyboardState(), KeyboardState()));
                                 break;
                                 
                             case MOUSE_EVENT:
-                                mouseEventsHandler(null, MouseEvent(null, MouseState()));
+                                console.mouseEventsHandler()(console, MouseEvent(console, MouseState(), MouseState()));
                                 break;
                                 
                             case WINDOW_BUFFER_SIZE_EVENT:
-                                sizeEventsHandler(null, SizeEvent(null, Size()));
+                                WINDOW_BUFFER_SIZE_RECORD sizeRecord = record.WindowBufferSizeEvent;
+                                Size oldSize = currentSize_;
+                                currentSize_ = Size(sizeRecord.dwSize.X, sizeRecord.dwSize.Y); 
+                                console.sizeEventsHandler()(console, SizeEvent(console, oldSize, currentSize_));
+
                                 break;
                                 
                             case FOCUS_EVENT: break;
@@ -95,11 +104,30 @@ version(Windows) {
                             default: break;
                         }
                     }
+                    
+                    drawBuffer(Pos(0, 0), console.mainWindow.buffer);
                 }
                 
                 Thread.yield();
             }
             
+        }
+        
+        void drawBuffer(Pos pos, CharType[][] buffer) {
+            CHAR_INFO[][] nativeBuffer = new CHAR_INFO[][](currentSize_.height, currentSize_.width);
+            
+            for (int j = 0; j < currentSize_.height; j++) {
+                for (int i = 0; i < currentSize_.width; i++) {
+                    nativeBuffer[j][i] = buffer[j][i].toCharInfo;
+                }
+            }
+            
+            auto rect = SMALL_RECT(0, 0, (currentSize_.width - 1).to!SHORT, (currentSize_.height - 1).to!SHORT);
+            auto size = COORD((currentSize_.width - 1).to!SHORT, (currentSize_.height - 1).to!SHORT);
+            
+            //TODO: use temporary buffer
+            WriteConsoleOutputW(stdOut_, nativeBuffer[0].ptr, size, COORD(0, 0), &rect);
+
         }
     }
 }
@@ -109,6 +137,7 @@ class Console: Az {
     
 private:
     ConsoleImpl impl_;
+    Window mainWindow_;
     
     ColorIndex defaultForegroundColor_;
     ColorIndex defaultBackgroundColor_;
@@ -139,13 +168,21 @@ public:
         auto sizeEventsHandler() {
             return sizeEventsHandler_;
         }
+        
+        Window mainWindow() {
+            return mainWindow_;
+        }
     }
     
     void drawBuffer(Pos pos, CharType[][] buffer) {
         
     }
     
+    void addMainWindow(Window w) {
+        mainWindow_ = w;
+    }
+    
     void run() {
-        impl_.run(keyboardEventsHandler_, mouseEventsHandler_, sizeEventsHandler_);
+        impl_.run(this);
     }
 };

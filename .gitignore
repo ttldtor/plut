@@ -6,3 +6,6 @@ __dummy.html
 *.sln
 *.visualdproj
 *.project
+*.suo
+*.lib
+

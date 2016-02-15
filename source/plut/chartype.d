@@ -2,25 +2,22 @@
 
 import plut.colorindex;
 
-struct CommonCharType(C) {
-    ColorIndex foreground;
-    ColorIndex background;
-    C data;
+struct CharType {
+    ColorIndex foreground = ColorIndex.LightGray;
+    ColorIndex background = ColorIndex.Black;
+    wchar data = ' ';
 };
-
-alias CharType = CommonCharType!char;
-alias WideCharType = CommonCharType!wchar;
-alias DoubleWideCharType = CommonCharType!dchar;
 
 version(Windows) {
     import core.sys.windows.windows;
     import std.utf;
+    import std.conv;
     
-    CHAR_INFO toCharInfo(C)(const(C) c) if(is(C : CharType) || is(C : WideCharType) || is(C : DoubleWideCharType)) {
+    CHAR_INFO toCharInfo(const(CharType) c) {
         CHAR_INFO result;
-        
-        result.Attributes = c.foreground | c.background;
-        result.UnicodeChar = ("" ~ c.data).toUTF16()[0];
+
+        result.Attributes = (c.foreground | (c.background << 4)).to!WORD;
+        result.UnicodeChar = c.data;
         
         return result;
     }

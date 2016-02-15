@@ -1,6 +1,8 @@
 module plut.colorindex.windowsimpl;
 
 version(Windows) {
+    import core.sys.windows.windows;
+
     private enum BackgroundMask = 0xF0;
     private enum ForegroundMask = 0x0F;
 

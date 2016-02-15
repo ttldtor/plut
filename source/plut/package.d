@@ -17,3 +17,4 @@ public import plut.sizepolicy;
 public import plut.pos;
 public import plut.beep;
 public import plut.window;
+public import plut.plut;

@@ -36,7 +36,27 @@ version(Windows) {
         DWORD oldConsoleMode_;
         
         Size currentSize_;
+        Pos currentPosInBuffer_;
         
+
+        void calculateCurrentSize() {
+            import std.math;
+
+            CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+
+            GetConsoleScreenBufferInfo(stdOut_, &bufferInfo);
+
+            auto size = bufferInfo.dwMaximumWindowSize;
+            auto s = bufferInfo.srWindow;
+
+            currentPosInBuffer_ = Pos(bufferInfo.dwCursorPosition.X.to!int, bufferInfo.dwCursorPosition.Y.to!int);
+
+            //currentSize_.width = size.X.to!int;
+            //currentSize_.height = size.Y.to!int;
+            currentSize_.width = abs(s.Right.to!int - s.Left.to!int + 1);
+            currentSize_.height = abs(s.Bottom.to!int - s.Top.to!int + 1);
+        }
+
     public:
         
         this() {
@@ -64,9 +84,12 @@ version(Windows) {
             if (!SetConsoleMode(stdIn_, newConsoleMode)) {
                 throw new PlutConsoleException("Can't set console mode");
             } 
+
+            calculateCurrentSize();
         }
         
         void run(Console console) {
+            import plut.plut;
             
             INPUT_RECORD[inputBufferSize] inputBuffer;
             DWORD numberOfEvents = 0;
@@ -92,9 +115,9 @@ version(Windows) {
                                 break;
                                 
                             case WINDOW_BUFFER_SIZE_EVENT:
-                                WINDOW_BUFFER_SIZE_RECORD sizeRecord = record.WindowBufferSizeEvent;
-                                Size oldSize = currentSize_;
-                                currentSize_ = Size(sizeRecord.dwSize.X, sizeRecord.dwSize.Y); 
+                                auto oldSize = currentSize_;
+
+                                calculateCurrentSize();                                 
                                 console.sizeEventsHandler()(console, SizeEvent(console, oldSize, currentSize_));
 
                                 break;
@@ -105,29 +128,47 @@ version(Windows) {
                         }
                     }
                     
-                    drawBuffer(Pos(0, 0), console.mainWindow.buffer);
+                    auto oldSize = currentSize_;
+                    calculateCurrentSize();
+                    console.sizeEventsHandler()(console, SizeEvent(console, oldSize, currentSize_));
+                    drawBuffer(Pos(0, 0), Plut.mainWindow.buffer, Plut.mainWindow.size);
                 }
                 
+                Thread.sleep(50.msecs);
                 Thread.yield();
             }
             
         }
         
-        void drawBuffer(Pos pos, CharType[][] buffer) {
-            CHAR_INFO[][] nativeBuffer = new CHAR_INFO[][](currentSize_.height, currentSize_.width);
+        void drawBuffer(Pos pos, CharType[] buffer, Size s) {
+            if (buffer is null || currentSize_.width == 0 || currentSize_.height == 0 || s.width == 0 || s.height == 0) {
+                return;
+            }
+
+            CHAR_INFO[] nativeBuffer = new CHAR_INFO[](s.height * s.width);
             
-            for (int j = 0; j < currentSize_.height; j++) {
-                for (int i = 0; i < currentSize_.width; i++) {
-                    nativeBuffer[j][i] = buffer[j][i].toCharInfo;
+            for (int j = 0; j < s.height; j++) {
+                for (int i = 0; i < s.width; i++) {
+                    nativeBuffer[j * s.width + i] = buffer[j * s.width + i].toCharInfo;
                 }
             }
             
-            auto rect = SMALL_RECT(0, 0, (currentSize_.width - 1).to!SHORT, (currentSize_.height - 1).to!SHORT);
-            auto size = COORD((currentSize_.width - 1).to!SHORT, (currentSize_.height - 1).to!SHORT);
+            auto rect = SMALL_RECT(0, 0,
+                    (s.width - 1).to!SHORT, (s.height - 1).to!SHORT);
+            auto size = COORD(s.width.to!SHORT, s.height.to!SHORT);
             
             //TODO: use temporary buffer
-            WriteConsoleOutputW(stdOut_, nativeBuffer[0].ptr, size, COORD(0, 0), &rect);
+            WriteConsoleOutputW(stdOut_, nativeBuffer.ptr, size, COORD(0, 0), &rect);
+        }
 
+        @property {
+            auto currentSize() {
+                if (currentSize_.width == 0 || currentSize_.height == 0) {
+                    calculateCurrentSize();
+                }
+
+                return currentSize_;
+            }
         }
     }
 }
@@ -137,18 +178,25 @@ class Console: Az {
     
 private:
     ConsoleImpl impl_;
-    Window mainWindow_;
     
     ColorIndex defaultForegroundColor_;
     ColorIndex defaultBackgroundColor_;
     
-    auto keyboardEventsHandler_ = new SharedHandler!(Az /+ sender +/, KeyboardEvent /+ event +/);
-    auto mouseEventsHandler_ = new SharedHandler!(Az /+ sender +/, MouseEvent /+ event +/);
-    auto sizeEventsHandler_ = new SharedHandler!(Az /+ sender +/, SizeEvent /+ event +/);
+    auto keyboardEventsHandler_ = new Handler!(Az /+ sender +/, KeyboardEvent /+ event +/);
+    auto mouseEventsHandler_ = new Handler!(Az /+ sender +/, MouseEvent /+ event +/);
+    auto sizeEventsHandler_ = new Handler!(Az /+ sender +/, SizeEvent /+ event +/);
     
 public:
 
+    this() {
+        impl_ = new ConsoleImpl();
+    }
+
     @property {
+        auto size() {
+            return impl_.currentSize;
+        }
+
         ColorIndex defaultForegroundColor() {
             return defaultForegroundColor_;
         }
@@ -168,20 +216,8 @@ public:
         auto sizeEventsHandler() {
             return sizeEventsHandler_;
         }
-        
-        Window mainWindow() {
-            return mainWindow_;
-        }
     }
-    
-    void drawBuffer(Pos pos, CharType[][] buffer) {
-        
-    }
-    
-    void addMainWindow(Window w) {
-        mainWindow_ = w;
-    }
-    
+
     void run() {
         impl_.run(this);
     }

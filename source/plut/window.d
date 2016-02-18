@@ -17,16 +17,16 @@ import plut.sizepolicyevent;
 import plut.colorindex;
 import plut.chartype;
 import plut.console;
+import plut.zorder;
 
-class Window: Az {
-    alias ZOrderChangeEvent = ValueChangeEvent!(typeof(zOrder_));
-
+class Window: Az, HasZOrder!Window {
+    mixin HasZOrderMixin!Window;
+    
 private:
 
     CharType[] buffer_;
 
     Pos pos_;
-    int zOrder_;
     Size size_;
 
     SizePolicy sizePolicy_;
@@ -34,7 +34,6 @@ private:
     auto keyboardEventsHandler_ = new Handler!(Window /+ sender +/, KeyboardEvent /+ event +/);
     auto mouseEventsHandler_ = new Handler!(Window /+ sender +/, MouseEvent /+ event +/);
     auto posEventsHandler_ = new Handler!(Window /+ sender +/, PosEvent /+ event +/);
-    auto zOrderChangesHandler_ = new Handler!(Window /+ sender +/, ZOrderChangeEvent /+ event +/);
     auto sizeEventsHandler_ = new Handler!(Window /+ sender +/, SizeEvent /+ event +/);
     auto sizePolicyEventsHandler_ = new Handler!(Window /+ sender +/, SizePolicyEvent /+ event +/);
 
@@ -103,16 +102,6 @@ public:
             return pos_;
         }
 
-        int zOrder(int newZOrder) {
-            zOrderChangesHandler_(this, ZOrderChangeEvent(this, zOrder_, newZOrder));
-
-            return zOrder_ = newZOrder;
-        }
-
-        int zOrder() {
-            return zOrder_;
-        }
-
         Size size(Size newSize) {
             auto oldSize = size_;
 
@@ -153,10 +142,6 @@ public:
 
         auto posEventsHandler() {
             return posEventsHandler_;
-        }
-
-        auto zOrderChangesHandler() {
-            return zOrderChangesHandler_;
         }
 
         auto sizePolicyEventsHandler() {

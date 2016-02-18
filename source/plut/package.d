@@ -18,3 +18,4 @@ public import plut.pos;
 public import plut.beep;
 public import plut.window;
 public import plut.plut;
+public import plut.zorder;

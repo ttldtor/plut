@@ -19,21 +19,20 @@ import plut.chartype;
 import plut.console;
 import plut.zorder;
 
-class Window: Az, HasZOrder!Window {
+class Window: Az, HasZOrder!Window, HasPos!Window {
     mixin HasZOrderMixin!Window;
+    mixin HasPosMixin!Window;
     
 private:
 
     CharType[] buffer_;
 
-    Pos pos_;
     Size size_;
 
     SizePolicy sizePolicy_;
 
     auto keyboardEventsHandler_ = new Handler!(Window /+ sender +/, KeyboardEvent /+ event +/);
     auto mouseEventsHandler_ = new Handler!(Window /+ sender +/, MouseEvent /+ event +/);
-    auto posEventsHandler_ = new Handler!(Window /+ sender +/, PosEvent /+ event +/);
     auto sizeEventsHandler_ = new Handler!(Window /+ sender +/, SizeEvent /+ event +/);
     auto sizePolicyEventsHandler_ = new Handler!(Window /+ sender +/, SizePolicyEvent /+ event +/);
 
@@ -92,16 +91,6 @@ public:
     }
 
     @property {
-        Pos pos(Pos newPos) {
-            posEventsHandler_(this, PosEvent(this, pos_, newPos));
-
-            return pos_ = newPos;
-        }
-
-        Pos pos() {
-            return pos_;
-        }
-
         Size size(Size newSize) {
             auto oldSize = size_;
 
@@ -138,10 +127,6 @@ public:
 
         auto sizeEventsHandler() {
             return sizeEventsHandler_;
-        }
-
-        auto posEventsHandler() {
-            return posEventsHandler_;
         }
 
         auto sizePolicyEventsHandler() {
